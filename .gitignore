@@ -1,0 +1,23 @@
+# ===== Sistema e IDE =====
+.DS_Store
+.idea/
+.vs/
+.vscode/
+*.user
+*.suo
+
+# ===== .NET =====
+bin/
+obj/
+publish/
+TestResults/
+*.zip
+
+# ===== Base de dados local (criada no arranque) =====
+*.db
+*.db-shm
+*.db-wal
+
+# ===== Segredos =====
+appsettings.Production.json
+.env
