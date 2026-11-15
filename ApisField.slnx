@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ApisField.Api.Tests/ApisField.Api.Tests.csproj" />
+  <Project Path="ApisField.Api/ApisField.Api.csproj" />
+</Solution>
