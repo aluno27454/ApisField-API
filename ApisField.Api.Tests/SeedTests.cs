@@ -1,4 +1,5 @@
 using ApisField.Api.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ApisField.Api.Tests;
@@ -55,4 +56,24 @@ public class SeedTests
         Assert.True(PasswordHasher.Verify("Admin2026!", admin.PasswordHash));
         Assert.False(PasswordHasher.Verify("errada", admin.PasswordHash));
     }
+
+    [Fact]
+    public void Datas_LidasDaBaseDeDados_SaoUtc()
+    {
+        using var factory = new ApiFactory();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        // Lidas de novo do SQLite (não da cache do contexto), que é onde o fuso se perderia.
+        Assert.All(db.Hives.AsNoTracking().Select(h => h.LastUpdate), d => Assert.Equal(DateTimeKind.Utc, d.Kind));
+        Assert.All(db.Visits.AsNoTracking().Select(v => v.Date), d => Assert.Equal(DateTimeKind.Utc, d.Kind));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("abc")]
+    [InlineData("100000.!!!.!!!")]
+    [InlineData("0.c2FsdA==.aGFzaA==")]
+    public void Verify_HashMalFormado_DevolveFalse(string stored) =>
+        Assert.False(PasswordHasher.Verify("Admin2026!", stored));
 }

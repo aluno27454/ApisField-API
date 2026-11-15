@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApisField.Api.Data;
 
@@ -14,6 +15,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Hive> Hives => Set<Hive>();
     public DbSet<Visit> Visits => Set<Visit>();
     public DbSet<WaspSighting> Sightings => Set<WaspSighting>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder b)
+    {
+        // O SQLite não guarda o fuso horário: sem isto, as datas lidas vêm como Unspecified e o JSON sai sem "Z".
+        // Todas as datas da API são UTC (contrato), por isso convertem-se ao gravar e marcam-se como UTC ao ler.
+        b.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+    }
+
+    private sealed class UtcDateTimeConverter() : ValueConverter<DateTime, DateTime>(
+        v => v.ToUniversalTime(), v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
     protected override void OnModelCreating(ModelBuilder b)
     {

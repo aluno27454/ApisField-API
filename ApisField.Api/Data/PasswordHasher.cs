@@ -32,10 +32,20 @@ public static class PasswordHasher
     public static bool Verify(string password, string stored)
     {
         var parts = stored.Split('.');
-        if (parts.Length != 3 || !int.TryParse(parts[0], out var iterations)) return false;
+        if (parts.Length != 3 || !int.TryParse(parts[0], out var iterations) || iterations <= 0) return false;
 
-        var salt = Convert.FromBase64String(parts[1]);
-        var expected = Convert.FromBase64String(parts[2]);
+        byte[] salt, expected;
+        try
+        {
+            salt = Convert.FromBase64String(parts[1]);
+            expected = Convert.FromBase64String(parts[2]);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+        if (expected.Length == 0) return false;
+
         var actual = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, expected.Length);
 
         // Comparação em tempo constante, para não revelar pelo tempo de resposta quantos bytes coincidem.

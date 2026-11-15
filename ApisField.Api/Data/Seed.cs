@@ -46,7 +46,7 @@ public static class Seed
         db.Hives.AddRange(hives);
 
         // Visitas: feitas pelo dono da colmeia, às 10h, no próprio local.
-        Visit V(Hive h,int daysAgo, bool queen, string brood, string temper, string? treatment, string? notes) => new()
+        Visit V(Hive h, int daysAgo, bool queen, string brood, string temper, string? treatment, string? notes) => new()
         {
             Hive = h, Date = now.Date.AddDays(-daysAgo).AddHours(10), QueenSeen = queen, BroodLevel = brood, Temperament = temper,
             Treatment = treatment, Notes = notes, Latitude = h.Latitude, Longitude = h.Longitude, Author = h.Owner,
