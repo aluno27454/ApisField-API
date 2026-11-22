@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApisField.Api.Controllers;
@@ -9,6 +10,7 @@ namespace ApisField.Api.Controllers;
 /// </remarks>
 [ApiController]
 [Route("api/health")]
+[AllowAnonymous]
 public class HealthController : ControllerBase
 {
     /// <summary>GET /api/health</summary>
