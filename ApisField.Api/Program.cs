@@ -47,6 +47,9 @@ builder.Services.AddAuthorizationBuilder()
 // Os testes substituem-na por um ficheiro temporário (ver ApiFactory nos testes).
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
+// Pasta das fotografias: "Photos:Path" (por omissão, a pasta fotos da API).
+builder.Services.AddSingleton<PhotoStore>();
+
 var app = builder.Build();
 
 // Cria o esquema e os dados iniciais antes de aceitar pedidos.
