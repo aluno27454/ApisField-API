@@ -68,9 +68,30 @@ public class AuthTests
 
         Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
         var errors = (await res.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("errors");
-        Assert.True(errors.TryGetProperty("Name", out _));
-        Assert.True(errors.TryGetProperty("Email", out _));
-        Assert.True(errors.TryGetProperty("Password", out _)); // só dígitos, sem letras
+        Assert.True(errors.TryGetProperty("name", out _));
+        Assert.True(errors.TryGetProperty("email", out _));
+        Assert.True(errors.TryGetProperty("password", out _)); // só dígitos, sem letras
+    }
+
+    [Fact]
+    public async Task Registo_QuandoAGravacaoFalhaPorOutroMotivo_Devolve500()
+    {
+        using var factory = new ApiFactory();
+        var client = factory.CreateClient();
+
+        // Um trigger faz falhar a inserção por uma razão que não é o índice único do email.
+        // O 409 ("email já registado") seria enganador: é um erro do servidor.
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.ExecuteSqlRaw(
+                "CREATE TRIGGER falha BEFORE INSERT ON Users BEGIN INSERT INTO NaoExiste VALUES (1); END");
+        }
+
+        var res = await client.PostAsJsonAsync("/api/auth/register",
+            new { name = "Maria Abelha", email = "maria@exemplo.pt", password = "Mel12345" });
+
+        Assert.Equal(HttpStatusCode.InternalServerError, res.StatusCode);
     }
 
     [Fact]

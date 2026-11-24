@@ -1,5 +1,6 @@
 // Ponto de entrada da ApisField API: regista os serviços, prepara a base de dados e arranca o servidor HTTP.
 
+using System.Text.Json;
 using ApisField.Api.Auth;
 using ApisField.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,7 +10,10 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+// O contrato usa camelCase. As propriedades já saem assim por omissão, mas os campos em "errors" (400)
+// são chaves de um dicionário e precisam desta opção: sem ela sairiam "Email" em vez de "email".
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase);
 
 // ---- Autenticação JWT ----
 // A chave vem de "Jwt:Key": em desenvolvimento de appsettings.Development.json, em produção da
