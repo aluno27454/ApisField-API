@@ -80,7 +80,7 @@ As colmeias criadas na app não têm hardware real. As suas leituras são simula
 | GET | `/api/alerts` | — | `Alert[]`, do mais recente para o mais antigo |
 | PATCH | `/api/alerts/{id}/read` | — | `Alert` |
 | PATCH | `/api/alerts/read-all` | — | 204 |
-| GET | `/api/visits?hiveId=` | — | `Visit[]`, do mais recente para o mais antigo; `hiveId` é opcional |
+| GET | `/api/visits?hiveId=` | — | `Visit[]`, do mais recente para o mais antigo; `hiveId` é opcional (404 se a colmeia for de outro utilizador) |
 | GET | `/api/visits/{id}` | — | `Visit` |
 | POST | `/api/hives/{hiveId}/visits` | `{ date, queenSeen, broodLevel, temperament, treatment, notes, latitude, longitude }` | 201 `Visit` |
 | PUT | `/api/visits/{id}` | igual ao POST | `Visit` |
@@ -109,4 +109,4 @@ As colmeias criadas na app não têm hardware real. As suas leituras são simula
 | `broodLevel` / `temperament` | Valores do contrato |
 | `treatment` | Até 200 caracteres |
 | `notes` | Até 500 caracteres |
-| Fotos | JPEG, até 2 MB; no máximo 5 por visita |
+| Fotos | JPEG, até 2 MB; no máximo 5 por visita. O erro vem no campo `photo` |

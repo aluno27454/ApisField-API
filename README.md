@@ -25,6 +25,10 @@ A base de dados SQLite é criada e preenchida no primeiro arranque.
 
 Os tokens JWT são assinados com a chave `Jwt:Key` (pelo menos 32 caracteres). Em desenvolvimento vem de `appsettings.Development.json`; em produção define-se na variável de ambiente `Jwt__Key` (no Azure, em **Configuração → Definições da aplicação**). Sem chave, a API não arranca.
 
+### Fotografias
+
+As fotografias ficam em disco, na pasta `Photos:Path` (por omissão, `ApisField.Api/fotos`). No Azure, definir `Photos__Path` para uma pasta dentro de `/home`, a única que sobrevive a um reinício.
+
 ## Utilizadores iniciais
 
 | Email | Palavra-passe | Papel |
