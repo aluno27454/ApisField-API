@@ -3,6 +3,7 @@ using ApisField.Api.Data;
 using ApisField.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApisField.Api.Controllers;
@@ -13,6 +14,9 @@ namespace ApisField.Api.Controllers;
 [AllowAnonymous]
 public class AuthController(AppDbContext db, TokenService tokens) : ControllerBase
 {
+    /// <summary>Código do SQLite para a violação de um índice único (SQLITE_CONSTRAINT_UNIQUE).</summary>
+    private const int UniqueViolation = 2067;
+
     /// <summary>POST /api/auth/register: cria a conta e já devolve o token, para a app não ter de fazer login a seguir.</summary>
     /// <returns>201 com <see cref="AuthResult"/>; 400 se os dados forem inválidos; 409 se o email já existir.</returns>
     [HttpPost("register")]
@@ -28,9 +32,10 @@ public class AuthController(AppDbContext db, TokenService tokens) : ControllerBa
         {
             await db.SaveChangesAsync();
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException e) when (e.InnerException is SqliteException { SqliteExtendedErrorCode: UniqueViolation })
         {
             // Dois registos com o mesmo email ao mesmo tempo: o índice único da base de dados trava o segundo.
+            // Qualquer outro erro de escrita segue como 500.
             return Problem(statusCode: StatusCodes.Status409Conflict, title: "Este email já está registado.");
         }
 
