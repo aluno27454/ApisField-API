@@ -16,6 +16,12 @@ public static class PasswordHasher
     private const int SaltSize = 16;
     private const int HashSize = 32;
 
+    /// <summary>Hash de uma palavra-passe aleatória que ninguém conhece.</summary>
+    /// <remarks>
+    /// O login compara com ele quando o email não existe, para demorar o mesmo do que com um email registado.
+    /// </remarks>
+    public static readonly string Dummy = Hash(Convert.ToBase64String(RandomNumberGenerator.GetBytes(SaltSize)));
+
     /// <summary>Gera o hash de <paramref name="password"/> com um salt aleatório novo.</summary>
     /// <returns>O valor a guardar em <see cref="User.PasswordHash"/>.</returns>
     public static string Hash(string password)

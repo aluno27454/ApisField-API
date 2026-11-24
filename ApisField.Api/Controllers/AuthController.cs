@@ -48,7 +48,9 @@ public class AuthController(AppDbContext db, TokenService tokens) : ControllerBa
     {
         var email = Normalize(req.Email);
         var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
-        if (user is null || !PasswordHasher.Verify(req.Password, user.PasswordHash))
+        // A verificação corre sempre, mesmo sem utilizador: senão o tempo de resposta revelava o mesmo.
+        var passwordOk = PasswordHasher.Verify(req.Password, user?.PasswordHash ?? PasswordHasher.Dummy);
+        if (user is null || !passwordOk)
             return Problem(statusCode: StatusCodes.Status401Unauthorized, title: "Email ou palavra-passe errados.");
 
         return Ok(new AuthResult(tokens.Create(user), UserResponse.From(user)));
