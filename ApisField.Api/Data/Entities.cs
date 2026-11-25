@@ -108,6 +108,20 @@ public class Visit
 
     public int AuthorId { get; set; }
     public User? Author { get; set; }
+
+    public List<Photo> Photos { get; set; } = [];
+}
+
+/// <summary>Fotografia de uma visita. A base de dados guarda só o nome do ficheiro; a imagem fica em disco (<see cref="PhotoStore"/>).</summary>
+public class Photo
+{
+    public int Id { get; set; }
+
+    public int VisitId { get; set; }
+    public Visit? Visit { get; set; }
+
+    /// <summary>Nome do ficheiro na pasta das fotografias, gerado pela API.</summary>
+    public required string FileName { get; set; }
 }
 
 /// <summary>Avistamento de vespa asiática (<i>Vespa velutina</i>) ou de um ninho, partilhado entre todos os utilizadores.</summary>
