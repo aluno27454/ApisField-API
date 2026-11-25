@@ -65,7 +65,7 @@ public class SeedTests
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         // Lidas de novo do SQLite (não da cache do contexto), que é onde o fuso se perderia.
-        Assert.All(db.Hives.AsNoTracking().Select(h => h.LastUpdate), d => Assert.Equal(DateTimeKind.Utc, d.Kind));
+        Assert.All(db.Hives.AsNoTracking().Select(h => h.CreatedAt), d => Assert.Equal(DateTimeKind.Utc, d.Kind));
         Assert.All(db.Visits.AsNoTracking().Select(v => v.Date), d => Assert.Equal(DateTimeKind.Utc, d.Kind));
     }
 

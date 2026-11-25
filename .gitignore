@@ -18,6 +18,9 @@ TestResults/
 *.db-shm
 *.db-wal
 
+# ===== Fotografias enviadas pela app =====
+ApisField.Api/fotos/
+
 # ===== Segredos =====
 appsettings.Production.json
 .env
