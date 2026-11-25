@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApisField.Api.Tests;
 
@@ -112,6 +113,37 @@ public class PhotoTests
 
         Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
         Assert.Equal(5, Ficheiros(f).Length);
+    }
+
+    [Fact]
+    public async Task Enviar_VariasAoMesmoTempo_NuncaPassaDeCinco()
+    {
+        using var f = new ApiFactory();
+        var andre = await f.AndreAsync();
+        var visit = VisitaDoAndre(f);
+        for (var i = 0; i < 4; i++) await EnviarOkAsync(andre, visit, Jpeg());
+
+        var respostas = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => EnviarAsync(andre, visit, Jpeg())));
+
+        Assert.Single(respostas, r => r.StatusCode == HttpStatusCode.Created);
+        Assert.Equal(7, respostas.Count(r => r.StatusCode == HttpStatusCode.BadRequest));
+        Assert.Equal(5, f.Query(db => db.Photos.Count(p => p.VisitId == visit)));
+        Assert.Equal(5, Ficheiros(f).Length);
+    }
+
+    [Fact]
+    public async Task Enviar_SeAGravacaoFalhar_NaoDeixaOFicheiroEmDisco()
+    {
+        using var f = new ApiFactory();
+        var andre = await f.AndreAsync();
+        var visit = VisitaDoAndre(f);
+        f.Query(db => db.Database.ExecuteSqlRaw(
+            "CREATE TRIGGER falha BEFORE INSERT ON Photos BEGIN INSERT INTO NaoExiste VALUES (1); END"));
+
+        var res = await EnviarAsync(andre, visit, Jpeg());
+
+        Assert.Equal(HttpStatusCode.InternalServerError, res.StatusCode);
+        Assert.Empty(Ficheiros(f));
     }
 
     [Fact]

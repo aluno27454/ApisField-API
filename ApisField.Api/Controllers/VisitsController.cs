@@ -89,16 +89,30 @@ public class VisitsController(AppDbContext db, PhotoStore store) : ControllerBas
     [HttpPost("visits/{id:int}/photos")]
     public async Task<IActionResult> AddPhoto(int id)
     {
-        var visit = await Visits.SingleOrDefaultAsync(v => v.Id == id);
-        if (visit is null) return NotFound();
-        if (visit.Photos.Count >= MaxPhotos) return InvalidPhoto($"Cada visita tem no máximo {MaxPhotos} fotografias.");
+        if (!await db.Visits.VisibleTo(User).AnyAsync(v => v.Id == id)) return NotFound();
 
         var (jpeg, error) = await JpegReader.ReadAsync(Request);
         if (jpeg is null) return InvalidPhoto(error!);
 
+        // Em SQLite, a transação bloqueia logo as outras escritas. Assim, dois envios ao mesmo tempo contam
+        // as fotografias um de cada vez e a visita nunca passa do limite.
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        if (await db.Photos.CountAsync(p => p.VisitId == id) >= MaxPhotos)
+            return InvalidPhoto($"Cada visita tem no máximo {MaxPhotos} fotografias.");
+
         var photo = new Photo { VisitId = id, FileName = await store.SaveAsync(jpeg) };
-        db.Photos.Add(photo);
-        await db.SaveChangesAsync();
+        try
+        {
+            db.Photos.Add(photo);
+            await db.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            // Sem o registo, ninguém voltaria a encontrar este ficheiro para o apagar.
+            store.Delete([photo.FileName]);
+            throw;
+        }
         return Created($"/api/photos/{photo.Id}", new { id = photo.Id });
     }
 
