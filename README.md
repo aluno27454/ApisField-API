@@ -2,7 +2,7 @@
 
 API REST que serve a app Android [ApisField](https://github.com/aluno27454/ApisField): autenticação, colmeias e leituras dos sensores, alertas, visitas com fotografias e avistamentos de vespa asiática.
 
-Trabalho prático de **Desenvolvimento de Aplicações Móveis**, Licenciatura em Engenharia Informática, Instituto Politécnico de Tomar, 2026/27. A API dá suporte à app e não é avaliada. Os dados iniciais são fictícios, mas plausíveis (região de Tomar).
+Trabalho prático de **Desenvolvimento de Aplicações Móveis**, Licenciatura em Engenharia Informática, Universidade Politécnica de Tomar, 2026/27. A API dá suporte à app e não é avaliada. Os dados iniciais são fictícios, mas plausíveis (região de Tomar).
 
 ## Tecnologia
 
@@ -20,6 +20,10 @@ dotnet test                               # testes
 ```
 
 A base de dados SQLite é criada e preenchida no primeiro arranque.
+
+### Chave dos tokens
+
+Os tokens JWT são assinados com a chave `Jwt:Key` (pelo menos 32 caracteres). Em desenvolvimento vem de `appsettings.Development.json`; em produção define-se na variável de ambiente `Jwt__Key` (no Azure, em **Configuração → Definições da aplicação**). Sem chave, a API não arranca.
 
 ## Utilizadores iniciais
 

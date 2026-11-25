@@ -76,4 +76,15 @@ public class SeedTests
     [InlineData("0.c2FsdA==.aGFzaA==")]
     public void Verify_HashMalFormado_DevolveFalse(string stored) =>
         Assert.False(PasswordHasher.Verify("Admin2026!", stored));
+
+    [Fact]
+    public void HashFicticio_CustaOMesmoQueUmHashNovo_ENaoTemPalavraPasseConhecida()
+    {
+        // O login usa-o quando o email não existe: com menos iterações, a resposta seria mais rápida
+        // e revelava que o email não está registado.
+        static string Iteracoes(string hash) => hash.Split('.')[0];
+
+        Assert.Equal(Iteracoes(PasswordHasher.Hash("Mel12345")), Iteracoes(PasswordHasher.Dummy));
+        Assert.False(PasswordHasher.Verify("", PasswordHasher.Dummy));
+    }
 }
