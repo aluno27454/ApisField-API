@@ -28,20 +28,23 @@ public static class Seed
         // Colmeias: 4 do André, 2 do Samuel. Os valores foram escolhidos para a app mostrar todos os estados:
         // "Sobreiro Velho" em perigo (vespa), "Alecrim" em alerta (CO₂ > 3500 ppm),
         // "Olival de Paialvo" em alerta (bateria < 20 %) e as restantes saudáveis.
+        // São valores de referência: a variação simulada (HiveSimulator) nunca os faz atravessar um limiar.
+        // Registadas há 90 dias, para o histórico de 7 dias vir sempre completo.
+        var created = now.AddDays(-90);
         Hive[] hives =
         [
             new() { Name = "Colmeia do Nabão", Model = "pro", Latitude = 39.6061, Longitude = -8.4127, Label = "Margem do Nabão, Tomar",
-                    TempInterior = 34.8, TempExterior = 14.2, Humidity = 61, Weight = 38.4, Co2 = 1450, Battery = 82, Signal = 74, LastUpdate = now.AddMinutes(-4), Owner = andre },
+                    TempInterior = 34.8, TempExterior = 14.2, Humidity = 61, Weight = 38.4, Co2 = 1450, Battery = 82, Signal = 74, CreatedAt = created, Owner = andre },
             new() { Name = "Sobreiro Velho", Model = "starter", Latitude = 39.5347, Longitude = -8.3995, Label = "Asseiceira",
-                    TempInterior = 35.1, TempExterior = 13.8, Humidity = 58, Weight = 41.7, Battery = 67, Signal = 55, WaspDetected = true, LastUpdate = now.AddMinutes(-7), Owner = andre },
+                    TempInterior = 35.1, TempExterior = 13.8, Humidity = 58, Weight = 41.7, Battery = 67, Signal = 55, WaspDetected = true, CreatedAt = created, Owner = andre },
             new() { Name = "Alecrim", Model = "pro", Latitude = 39.6392, Longitude = -8.3801, Label = "Sabacheira",
-                    TempInterior = 34.2, TempExterior = 12.9, Humidity = 66, Weight = 35.9, Co2 = 3820, Battery = 71, Signal = 62, LastUpdate = now.AddMinutes(-3), Owner = andre },
+                    TempInterior = 34.2, TempExterior = 12.9, Humidity = 66, Weight = 35.9, Co2 = 3820, Battery = 71, Signal = 62, CreatedAt = created, Owner = andre },
             new() { Name = "Olival de Paialvo", Model = "starter", Latitude = 39.5718, Longitude = -8.4689, Label = "Paialvo",
-                    TempInterior = 34.6, TempExterior = 14.5, Humidity = 59, Weight = 39.2, Battery = 15, Signal = 48, LastUpdate = now.AddMinutes(-12), Owner = andre },
+                    TempInterior = 34.6, TempExterior = 14.5, Humidity = 59, Weight = 39.2, Battery = 15, Signal = 48, CreatedAt = created, Owner = andre },
             new() { Name = "Carvalhal", Model = "starter", Latitude = 39.6305, Longitude = -8.3142, Label = "Olalhas",
-                    TempInterior = 35.0, TempExterior = 12.4, Humidity = 63, Weight = 36.8, Battery = 90, Signal = 81, LastUpdate = now.AddMinutes(-5), Owner = samuel },
+                    TempInterior = 35.0, TempExterior = 12.4, Humidity = 63, Weight = 36.8, Battery = 90, Signal = 81, CreatedAt = created, Owner = samuel },
             new() { Name = "Rosmaninho", Model = "pro", Latitude = 39.6214, Longitude = -8.4478, Label = "Carregueiros",
-                    TempInterior = 34.4, TempExterior = 13.6, Humidity = 60, Weight = 42.3, Co2 = 1980, Battery = 76, Signal = 69, LastUpdate = now.AddMinutes(-2), Owner = samuel },
+                    TempInterior = 34.4, TempExterior = 13.6, Humidity = 60, Weight = 42.3, Co2 = 1980, Battery = 76, Signal = 69, CreatedAt = created, Owner = samuel },
         ];
         db.Hives.AddRange(hives);
 

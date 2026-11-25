@@ -26,6 +26,14 @@ public static class AccessExtensions
         return visits.Where(v => v.Hive!.OwnerId == userId);
     }
 
+    /// <summary>Os alertas das colmeias do utilizador, ou todos se for admin.</summary>
+    public static IQueryable<Alert> VisibleTo(this IQueryable<Alert> alerts, ClaimsPrincipal principal)
+    {
+        if (principal.IsAdmin()) return alerts;
+        var userId = principal.UserId();
+        return alerts.Where(a => a.Hive!.OwnerId == userId);
+    }
+
     /// <summary>As fotografias das visitas às colmeias do utilizador, ou todas se for admin.</summary>
     public static IQueryable<Photo> VisibleTo(this IQueryable<Photo> photos, ClaimsPrincipal principal)
     {

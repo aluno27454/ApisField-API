@@ -23,10 +23,11 @@ public class User
     public string Role { get; set; } = "user";
 }
 
-/// <summary>Colmeia com sensores (Hive Box). Guarda a localização e a última leitura de cada sensor.</summary>
+/// <summary>Colmeia com sensores (Hive Box). Guarda a localização e os valores de referência de cada sensor.</summary>
 /// <remarks>
-/// O estado (<c>healthy</c>, <c>warning</c>, <c>danger</c>, <c>offline</c>) não é guardado:
-/// é calculado a partir destas leituras, para nunca ficar desatualizado em relação a elas.
+/// Nenhuma colmeia tem hardware real, por isso as leituras são simuladas (<see cref="HiveSimulator"/>):
+/// partem dos valores guardados aqui e variam com a hora do dia. O estado (<c>healthy</c>, <c>warning</c>,
+/// <c>danger</c>, <c>offline</c>) também não é guardado: é calculado a partir da leitura (<see cref="HiveRules"/>).
 /// </remarks>
 public class Hive
 {
@@ -44,34 +45,64 @@ public class Hive
     public string Label { get; set; } = "";
 
     /// <summary>Temperatura no interior da colmeia, em °C.</summary>
-    public double TempInterior { get; set; }
+    public double TempInterior { get; set; } = 34.8;
 
     /// <summary>Temperatura exterior, em °C.</summary>
-    public double TempExterior { get; set; }
+    public double TempExterior { get; set; } = 14;
 
     /// <summary>Humidade relativa, em %.</summary>
-    public double Humidity { get; set; }
+    public double Humidity { get; set; } = 60;
 
     /// <summary>Peso da colmeia, em kg.</summary>
-    public double Weight { get; set; }
+    public double Weight { get; set; } = 30;
 
-    /// <summary>CO₂ em ppm. <c>null</c> no modelo starter, que não tem este sensor.</summary>
+    /// <summary>CO₂ em ppm. Sem valor, o modelo Pro usa <see cref="HiveSimulator.DefaultCo2"/>; o starter não tem este sensor.</summary>
     public double? Co2 { get; set; }
 
     /// <summary>Bateria do módulo, em % (0–100).</summary>
-    public int Battery { get; set; }
+    public int Battery { get; set; } = 100;
 
     /// <summary>Qualidade do sinal de comunicação, em % (0–100).</summary>
-    public int Signal { get; set; }
+    public int Signal { get; set; } = 80;
 
     /// <summary>Indica se o sensor detetou vespa asiática junto à entrada.</summary>
     public bool WaspDetected { get; set; }
 
-    /// <summary>Instante (UTC) da última leitura. Sem leituras há mais de 2 horas, a colmeia fica <c>offline</c>.</summary>
-    public DateTime LastUpdate { get; set; }
+    /// <summary>Instante (UTC) em que a colmeia foi registada. O histórico não tem dados antes deste dia.</summary>
+    public DateTime CreatedAt { get; set; }
 
     public int OwnerId { get; set; }
     public User? Owner { get; set; }
+}
+
+/// <summary>Alerta gerado quando uma leitura ultrapassa um limiar (ver <see cref="HiveRules"/>).</summary>
+public class Alert
+{
+    public int Id { get; set; }
+
+    public int HiveId { get; set; }
+    public Hive? Hive { get; set; }
+
+    /// <summary><c>"wasp"</c>, <c>"temperature"</c>, <c>"co2"</c>, <c>"battery"</c> ou <c>"signal"</c>.</summary>
+    public required string Type { get; set; }
+
+    /// <summary><c>"warning"</c> ou <c>"danger"</c>.</summary>
+    public required string Severity { get; set; }
+
+    /// <summary>Texto para o utilizador, com o valor lido no momento em que o alerta foi gerado.</summary>
+    public required string Message { get; set; }
+
+    /// <summary>Instante (UTC) em que a condição foi detetada.</summary>
+    public DateTime Timestamp { get; set; }
+
+    /// <summary>Indica se o utilizador já viu o alerta.</summary>
+    public bool Read { get; set; }
+
+    /// <summary>
+    /// <c>true</c> enquanto a condição se mantiver. Impede alertas repetidos para a mesma condição;
+    /// quando a condição passa, fica <c>false</c> e uma nova ocorrência gera um alerta novo. Não sai na API.
+    /// </summary>
+    public bool Active { get; set; }
 }
 
 /// <summary>Registo de uma inspeção feita pelo apicultor a uma colmeia.</summary>
