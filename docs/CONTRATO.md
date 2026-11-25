@@ -59,9 +59,11 @@ O estado de uma colmeia é calculado a partir das leituras:
 | `offline` | Sem leituras há mais de 2 horas |
 | `healthy` | Nenhuma das anteriores |
 
-Cada limiar ultrapassado gera um `Alert`, sem duplicar enquanto a condição se mantiver.
+Cada limiar ultrapassado gera um `Alert`, sem duplicar enquanto a condição se mantiver. Se a condição passar e voltar, gera um alerta novo. Os alertas são gerados quando a app pede `GET /api/alerts`, com a leitura desse instante. Gravidade: `danger` para `wasp` e `temperature`, `warning` para `co2`, `battery` e `signal`. O tipo `weight` fica reservado: o contrato não define um limiar para o peso, por isso ainda não é gerado.
 
-As colmeias criadas na app não têm hardware real. As suas leituras são simuladas por uma função determinística: o id da colmeia serve de semente e os valores variam com a hora do dia.
+Nenhuma colmeia tem hardware real, nem as criadas na app nem as dos dados iniciais. As leituras são simuladas por uma função determinística: o id da colmeia serve de semente e os valores variam com a hora do dia, pouco, em torno dos valores de referência de cada colmeia. Por isso, `lastUpdate` é sempre o instante do pedido e nenhuma colmeia fica `offline`; o estado só existe para o caso de haver hardware real.
+
+O histórico (`HiveHistory`) tem um valor por dia, dos últimos 7 dias, do mais antigo para hoje: a leitura do meio-dia (UTC) ou, hoje antes do meio-dia, a de agora. `temperature` é a temperatura interior. Os dias antes do registo da colmeia têm `value` 0.
 
 ## Rotas
 
